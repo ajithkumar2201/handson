@@ -1,0 +1,231 @@
+module fa(a,b,cin,sum,cout);
+input a,b,cin;
+output sum,cout;
+assign sum=(a^b)^cin;
+assign cout=((a&b)|(b&cin)|(a&cin));
+endmodule
+
+module pa(a,b,cin,s,cout);
+input [3:0]a,b;
+input cin;
+output [3:0]s;
+output cout;
+wire [2:0]c;
+fa f1(a[0],b[0],cin,s[0],c[0]);
+fa f3(a[1],b[1],c[0],s[1],c[1]);
+fa f3(a[2],b[2],c[1],s[2],c[2]);
+fa f4(a[3],b[3],c[2],s[3],cout);
+endmodule
+
+
+module patest;
+reg [3:0]a,b;
+reg cin=1'b0;
+wire [3:0]s;
+wire cout;
+pa pa1(a,b,cin,s,cout);
+initial
+begin 
+a=4'b0;
+b=4'b0;
+#10 a=4'd1;
+b=4'd9;
+#10;
+endmodule
+
+
+
+________________________________________________________________
+
+
+
+module alu32bit(y,a,b,f);
+input [31:0]a,b;
+input[2:0]f;
+output reg [31:0]y;
+always@(*)
+begin
+case(f)
+3'b000:y=a&b;
+3'b001:y=a|b;
+3'b010:y=~(a&b);
+3'b011:y=~(a|b);
+3'b100:y=a+b;
+3'b101:y=a-b;
+default:y=32'bx;
+endcase
+end
+endmodule
+
+
+module alu32_tb;
+reg [31:0]a,b;
+reg [2:0]f;
+wire [31:0]y;
+alu32bit a1(.y(y),.a(a),.b(b),.f(f));
+initial 
+begin
+a=32'h00000000;
+b=32'hFFFFFFFF;
+#10 f=3'b000;
+#10 f=3'b100;
+end 
+initial
+#50 $finish;
+endmodule
+
+_________________________________________________________________________________
+
+
+
+
+
+
+
+module dlatch(d,en,reset,q,qb);
+input d,en,reset;
+output reg q;
+output qbar;
+assign reset=~d;
+always@(en)
+begin
+if(reset==1'b1)
+q<=1'b0;
+else
+q<=d;
+end
+assign qb=~q;
+endmodule
+
+
+
+module dlatch_tb;
+reg d,en,reset;
+wire q;
+wire qbar;
+dlatch d1(d,en,reset,q,qb);
+initial begin 
+d=0;reset=1;en=0;
+end
+
+always #10 e=~e;
+always #10 d=~d;
+initial
+#20 reset = 0;
+endmodule
+
+___________________________________________________________
+
+
+
+module dff(clk,d,q,qb);
+input d,clk;
+output q,qb;
+reg q,qb;
+always@(posedge clk)
+begin
+q=d;
+qb=~d;
+end
+endmodule
+
+
+
+module dff_tb;
+reg d,clk;
+wire q,qb;
+dff d1(clk,d,q,qb);
+initial begin
+clk=1'b0;
+d=1'b0;
+end
+always #10 clk=~clk;
+initial
+#30 d=1'b1;
+endmodule
+
+
+_______________________________________________________________
+
+
+module srff(clk,s,r,q,qb);
+input clk,s,r;
+output q,qb;
+reg q,qb;
+reg[1:0]sr;
+always@(posedge clk)
+begin
+sr={s,r};
+case(sr)
+2'b00:q=q;
+2'b01:q=0;
+2'b10:q=1;
+2'b11:q=x;
+endcase
+qb=~q;
+end
+endmodule
+
+
+module srff_tb;
+reg clk,s,r;
+wire q,qb;
+srff s1(clk,s,r,q,qb);
+initial clk=1'b0;
+always #5 clk=~clk;
+initial 
+begin
+#10 s=1'b0;r=1'b0;
+#10 s=1'b0;r=1'b1;
+#10 s=1'b1;r=1'b0;
+#10 s=1'b1;r=1'b1;
+#20;
+end
+endmodule
+
+______________________________________________________________
+
+module counter(clk,rst,m,count);
+input clk,rst,m;
+output reg [3:0]count;
+always@(posedge clk)
+begin 
+if(rst==0)
+count=0;
+else
+begin
+if(m)
+count=count+1;
+else
+count=count-1;
+end
+end
+endmodule
+
+
+module counter_tb;
+reg clk,rst,m;
+wire [3:0]count;
+counter c1(clk,rst,m,count);
+initial 
+begin
+clk=0;rst=0;m=0
+end
+
+always #5 clk=~clk;
+initial begin
+#10 rst=1;m=1;
+#120 m=0;
+#110;
+end
+endmodule
+
+
+
+
+
+
+
+
+
+
